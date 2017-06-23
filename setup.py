@@ -32,9 +32,6 @@ def read(*filenames, **kwargs):
 
 packages = find_packages(exclude="tests")
 
-with open("requirements.txt") as f:
-    required = f.read().splitlines()
-
 setup (
     name = "pypdfocr",
     version = __version__,
