@@ -32,8 +32,6 @@ def read(*filenames, **kwargs):
 
 packages = find_packages(exclude="tests")
 
-long_description = read('README.rst', 'CHANGES.rst', 'TODO.rst')
-
 with open("requirements.txt") as f:
     required = f.read().splitlines()
 
@@ -42,14 +40,13 @@ setup (
     version = __version__,
     description="Converts a scanned PDF into an OCR'ed pdf using Tesseract-OCR and Ghostscript",
     license = "ASL 2.0",
-    long_description = long_description,
+    long_description = "long_description",
     author="Virantha N. Ekanayake",
     author_email="virantha@gmail.com", # Removed.
     package_data = {'': ['*.xml']},
     zip_safe = True,
     include_package_data = True,
     packages = packages,
-    install_requires = required,
     entry_points = {
             'console_scripts': [
                     'pypdfocr = pypdfocr.pypdfocr:main'
