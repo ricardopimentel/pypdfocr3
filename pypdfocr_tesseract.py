@@ -59,7 +59,7 @@ class PyTesseract(object):
                 # Explicit str here to get around some MagicMock stuff for testing that I don't quite understand
                 binary = '"c:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"'
             else:
-                binary = "tesseract"
+                binary = "/app/storage/tesseract/tesseract"
 
         self.binary = binary
 
@@ -162,7 +162,7 @@ class PyTesseract(object):
         logging.info("Running OCR on %s to create %s.html" % (img_filename, basename))
         #cmd = '%s "%s" "%s" -psm 1 -c hocr_font_info=1 -l %s hocr' % (self.binary, img_filename, basename, self.lang)
         #Sintaxe correta para pegar o idioma indicano na linha de comando
-        cmd = '%s "%s" "%s" -l %s -psm 1 -c hocr_font_info=1 -l hocr' % (self.binary, img_filename, basename, self.lang)
+        cmd = '%s "%s" "%s" -l %s -psm 1 -c hocr_font_info=1 hocr' % (self.binary, img_filename, basename, self.lang)
         logging.info(cmd)
         try:
             ret_output = subprocess.check_output(cmd, shell=True,  stderr=subprocess.STDOUT)
