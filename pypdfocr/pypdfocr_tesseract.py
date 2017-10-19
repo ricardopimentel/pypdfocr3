@@ -59,7 +59,7 @@ class PyTesseract(object):
                 # Explicit str here to get around some MagicMock stuff for testing that I don't quite understand
                 binary = '"c:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"'
             else:
-                binary = "/app/storage/tesseract/tesseract"
+                binary = "tesseract"
 
         self.binary = binary
 
