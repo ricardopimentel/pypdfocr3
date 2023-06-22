@@ -70,6 +70,7 @@ def open_file_with_timeout(parser, arg):
 """
 
 class PyPDFOCR(object):
+
     """
         The main clas.  Performs the following functions:
 
@@ -344,7 +345,8 @@ class PyPDFOCR(object):
 
             fns = glob.glob(glob_img_filename)
         
-        except Exception:
+        except Exception as e:
+            print(traceback.print_exc(e))
             raise
 
         try:
@@ -352,6 +354,7 @@ class PyPDFOCR(object):
             if not self.skip_preprocess:
                 preprocess_imagefilenames = self.preprocess.preprocess(fns)
             else:
+                print('\n\nSkipping preprocess step\n\n')
                 logging.info("Skipping preprocess step")
                 preprocess_imagefilenames = fns
             # Run teserract
@@ -368,14 +371,17 @@ class PyPDFOCR(object):
             if not self.debug:
                 # Need to clean up the original image files before preprocessing
                 if "fns" in locals(): # Have to check if this was set before exception raised
+                    print("Cleaning up %s \n" % fns)
                     logging.info("Cleaning up %s" % fns)
                     self._clean_up_files(fns)
 
                 if "preprocess_imagefilenames" in locals():  # Have to check if this was set before exception raised
+                    print("Cleaning up %s \n\n" % preprocess_imagefilenames)
                     logging.info("Cleaning up %s" % preprocess_imagefilenames)
                     self._clean_up_files(preprocess_imagefilenames) # splat the hocr_filenames as it is a list of pairs
                     for ext in [".hocr", ".html", ".txt"]:
                         fns_to_remove = [os.path.splitext(fn)[0]+ext for fn in preprocess_imagefilenames]
+                        print("Cleaning up %s\n" % fns_to_remove)
                         logging.info("Cleaning up %s" % fns_to_remove)
                         self._clean_up_files(fns_to_remove) # splat the hocr_filenames as it is a list of pairs
                     # clean up the hocr input (jpg) and output (html) files
@@ -398,7 +404,7 @@ class PyPDFOCR(object):
             :returns: Target folder name
             "rtype: string
         """
-        filed_path = self.pdf_filer.move_to_matching_folder(ocr_pdffilename)  
+        filed_path = self.pdf_filer.move_to_matching_folder(ocr_pdffilename)
         print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(filed_path), os.path.basename(filed_path)))
 
         tgt_path = self.pdf_filer.file_original(original_pdffilename)
@@ -447,6 +453,7 @@ class PyPDFOCR(object):
             #. :func:`run_conversion`
             #. if filing is enabled, call :func:`file_converted_file`
         """
+
         # Read the command line options
         self.get_options(argv)
 
@@ -486,7 +493,7 @@ class PyPDFOCR(object):
         if self.enable_email:
             self._send_email(pdf_filename, ocr_pdffilename, filing)
 
-def main(): # pragma: no cover 
+def main(): # pragma: no cover
     multiprocessing.freeze_support()
     script = PyPDFOCR()
     script.go(sys.argv[1:])
