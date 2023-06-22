@@ -44,7 +44,7 @@ class PyTesseract(object):
         """
            Detect windows tesseract location.  
         """
-        self.lang = 'eng'
+        self.lang = 'por'
         self.required = "3.02.02"
         self.threads = config.get('threads',4)
 
