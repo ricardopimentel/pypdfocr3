@@ -132,7 +132,7 @@ class PyPdf(object):
                                                  ctm[2][0], ctm[2][1]])
 
     def overlay_hocr_pages(self, dpi, hocr_filenames, orig_pdf_filename):
-
+        print("Going to overlay following files onto %s" % orig_pdf_filename)
         logging.debug("Going to overlay following files onto %s" % orig_pdf_filename)
         # Sort the hocr_filenames into natural keys!
         hocr_filenames = sorted(hocr_filenames, key=lambda x: self.natural_keys(x[0]))
@@ -145,6 +145,7 @@ class PyPdf(object):
         text_pdf_filenames = []
         for img_filename, hocr_filename in hocr_filenames:
             text_pdf_filename = self.overlay_hocr_page(dpi, hocr_filename, img_filename)
+            print("Created temp OCR'ed pdf containing only the text as %s" % (text_pdf_filename))
             logging.info("Created temp OCR'ed pdf containing only the text as %s" % (text_pdf_filename))
             text_pdf_filenames.append(text_pdf_filename)
 
@@ -179,6 +180,7 @@ class PyPdf(object):
             Retry(partial(os.remove, fn), tries=10, pause=3).call_with_retry()
 
         os.remove(all_text_filename)
+        print("Created OCR'ed pdf as %s" % (pdf_filename))
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
 
         return pdf_filename
@@ -217,6 +219,7 @@ class PyPdf(object):
     def overlay_hocr_page(self, dpi, hocr_filename, img_filename):
         hocr_dir, hocr_basename = os.path.split(hocr_filename)
         img_dir, img_basename = os.path.split(img_filename)
+        print("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
         logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
         assert (img_dir == hocr_dir)
 
@@ -230,6 +233,7 @@ class PyPdf(object):
             os.chdir(hocr_dir)
 
         with open(pdf_filename, "wb") as f:
+            print("Overlaying hocr and creating text pdf %s" % pdf_filename)
             logging.info("Overlaying hocr and creating text pdf %s" % pdf_filename)
             pdf = Canvas(f, pageCompression=1)
             pdf.setCreator('pypdfocr')
@@ -238,10 +242,12 @@ class PyPdf(object):
 
             width, height, dpi_jpg = self._get_img_dims(img_basename)
             pdf.setPageSize((width, height))
+            print("Page width=%f, height=%f" % (width, height))
             logging.info("Page width=%f, height=%f" % (width, height))
 
             pg_num = 1
 
+            print("Adding text to page %s" % pdf_filename)
             logging.info("Adding text to page %s" % pdf_filename)
             self.add_text_layer(pdf, hocr_basename, pg_num, height, dpi)
             pdf.showPage()
@@ -278,9 +284,11 @@ class PyPdf(object):
             # It's possible tesseract has failed and written garbage to this hocr file, so we need to catch any exceptions
             hocr.parse(hocrfile)
         except Exception:
+            print("Error loading hocr, not adding any text")
             logging.info("Error loading hocr, not adding any text")
             return
 
+        print(xml.etree.ElementTree.tostring(hocr.getroot()))
         logging.debug(xml.etree.ElementTree.tostring(hocr.getroot()))
         for c in hocr.getroot():  # Find the <body> tag
             if c.tag != 'body':
@@ -320,6 +328,7 @@ class PyPdf(object):
                 word.text = ' '.join(word_text)
                 if word.text is None:
                     continue
+                print("word: %s, angle: %d" % (word.text.strip(), textangle))
                 logging.debug("word: %s, angle: %d" % (word.text.strip(), textangle))
 
                 box = self.regex_bbox.search(word.attrib['title']).group(1).split()
